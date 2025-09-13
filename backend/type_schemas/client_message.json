@@ -1,0 +1,453 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ClientMessage",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "CreateRoom": {
+          "type": "object",
+          "properties": {
+            "admin_pass": {
+              "type": "string"
+            },
+            "code": {
+              "$ref": "#/$defs/RoomCode"
+            }
+          },
+          "required": [
+            "code",
+            "admin_pass"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "CreateRoom"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "JoinRoom": {
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/RoomCode"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "JoinRoom"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "LeaveRoom": {
+          "$ref": "#/$defs/RoomCode"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "LeaveRoom"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "RemoveFromRoom": {
+          "type": "array",
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/RoomCode"
+            },
+            {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "RemoveFromRoom"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "DeleteRoom": {
+          "$ref": "#/$defs/RoomCode"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "DeleteRoom"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "RequestAdmin": {
+          "type": "object",
+          "properties": {
+            "password": {
+              "type": "string"
+            },
+            "room": {
+              "$ref": "#/$defs/RoomCode"
+            }
+          },
+          "required": [
+            "room",
+            "password"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "RequestAdmin"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "BlessScore": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "to": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "to",
+            "amount"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "BlessScore"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "RemoveScore": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "from": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "from",
+            "amount"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "RemoveScore"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "GiveScore": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "to": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "to",
+            "amount"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "GiveScore"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "TransferScore": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "from": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0
+            },
+            "to": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "from",
+            "to",
+            "amount"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "TransferScore"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "CreatePot": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "room_code": {
+              "$ref": "#/$defs/RoomCode"
+            },
+            "score_requirement": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "required": [
+            "room_code",
+            "score_requirement",
+            "description"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "CreatePot"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "JoinPot": {
+          "type": "object",
+          "properties": {
+            "pot_id": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0
+            },
+            "room_code": {
+              "$ref": "#/$defs/RoomCode"
+            }
+          },
+          "required": [
+            "room_code",
+            "pot_id"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "JoinPot"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "ResolvePot": {
+          "type": "object",
+          "properties": {
+            "pot_id": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0
+            },
+            "room_id": {
+              "$ref": "#/$defs/RoomCode"
+            },
+            "winner": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "room_id",
+            "pot_id",
+            "winner"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "ResolvePot"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "CreateWager": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "outcomes": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/WagerOutcome"
+              }
+            },
+            "room_id": {
+              "$ref": "#/$defs/RoomCode"
+            }
+          },
+          "required": [
+            "room_id",
+            "name",
+            "outcomes"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "CreateWager"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "JoinWager": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "outcome_id": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0
+            },
+            "room_id": {
+              "$ref": "#/$defs/RoomCode"
+            },
+            "wager_id": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "room_id",
+            "wager_id",
+            "outcome_id",
+            "amount"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "JoinWager"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "ResolveWager": {
+          "type": "object",
+          "properties": {
+            "outcome_id": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0
+            },
+            "room_id": {
+              "$ref": "#/$defs/RoomCode"
+            },
+            "wager_id": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "room_id",
+            "wager_id",
+            "outcome_id"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "ResolveWager"
+      ]
+    }
+  ],
+  "$defs": {
+    "RoomCode": {
+      "type": "string",
+      "max_length": "8",
+      "min_length": "8"
+    },
+    "WagerOutcome": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "odds": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "odds"
+      ]
+    }
+  }
+}

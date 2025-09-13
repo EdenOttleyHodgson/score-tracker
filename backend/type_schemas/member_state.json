@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MemberState",
+  "type": "object",
+  "properties": {
+    "current_pots": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "format": "uint",
+        "minimum": 0
+      },
+      "uniqueItems": true
+    },
+    "current_wagers": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "format": "uint",
+        "minimum": 0
+      },
+      "uniqueItems": true
+    },
+    "id": {
+      "type": "integer",
+      "format": "uint",
+      "minimum": 0
+    },
+    "name": {
+      "type": "string"
+    },
+    "score": {
+      "type": "integer",
+      "format": "int64"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "score",
+    "current_wagers",
+    "current_pots"
+  ]
+}

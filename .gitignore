@@ -1,0 +1,5 @@
+backend/target
+dummy_client
+frontend/score_tracker/node_modules
+frontend/score_tracker/.dockerignore
+

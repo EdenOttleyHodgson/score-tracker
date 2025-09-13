@@ -1,0 +1,14 @@
+[package]
+name = "backend_bin"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+backend_lib = { path = "../backend_lib" }
+tokio = { version = "1.46.1", features = ["full"] }
+log = "0.4.27"
+env_logger = "0.11.8"
+tokio-tungstenite = "0.27.0"
+
+[build-dependencies]
+schemagen = { path = "../schemagen" }
