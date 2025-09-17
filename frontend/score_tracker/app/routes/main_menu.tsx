@@ -30,10 +30,18 @@ export default function MainMenu() {
   return (
     <div>
       <p>hello</p>
-      <button onClick={() => backend.send_message({ kind:AAAAAAAA" })}>
+      <button
+        onClick={() =>
+          backend.send_message({
+            kind: "JoinRoom",
+            code: "AAAAAAAA",
+            name: "my plarkatingas",
+          })
+        }
+      >
         button
       </button>
       <ul>{messageList}</ul>
-    </div >
+    </div>
   );
 }

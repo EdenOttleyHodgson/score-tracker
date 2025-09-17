@@ -32,30 +32,56 @@ impl<'de> Deserialize<'de> for RoomCode {
     where
         D: serde::Deserializer<'de>,
     {
-        deserializer.deserialize_newtype_struct("RoomCode", RoomCodeVisitor)
+        deserializer.deserialize_any(RoomCodeVisitor)
     }
 }
 struct RoomCodeVisitor;
-impl Visitor<'_> for RoomCodeVisitor {
+impl<'de> Visitor<'de> for RoomCodeVisitor {
     type Value = RoomCode;
     fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
     where
         E: serde::de::Error,
     {
+        println!("{v}");
         let err = E::invalid_value(
             serde::de::Unexpected::Str(v),
             &"An alphanumeric string of length 8",
         );
-        let mut chars = v.chars();
-        if chars.all(char::is_alphanumeric) {
-            let array: [char; 8] = chars.collect_array().ok_or(err)?;
+        if v.chars().all(char::is_alphanumeric) {
+            let array: [char; 8] = v.chars().collect_array().ok_or(err)?;
+            println!("3{v}");
             Ok(RoomCode::from(array))
         } else {
+            println!("4{v}");
             Err(err)
         }
+    }
+    fn visit_newtype_struct<D>(self, deserializer: D) -> Result<Self::Value, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        panic!("granggl")
     }
 
     fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
         formatter.write_str("An alpha numeric string of length 8")
+    }
+}
+#[cfg(test)]
+mod tests {
+    use crate::state::room::RoomCode;
+    #[derive(Debug, PartialEq, Eq, serde::Deserialize)]
+    struct Dummy {
+        dummy: RoomCode,
+    }
+
+    #[test]
+    fn json_serialize() {
+        let expected = Dummy {
+            dummy: RoomCode::from(['A', 'A', 'A', 'A', 'A', 'A', 'A', 'A']),
+        };
+        let input = "{\"dummy\": \"AAAAAAAA\"}";
+        let output: Dummy = serde_json::from_str(input).unwrap();
+        assert_eq!(expected, output)
     }
 }
