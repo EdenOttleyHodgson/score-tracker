@@ -76,6 +76,7 @@ impl Connection {
                                 }
                             }
                             Err(e) => {
+                                log::trace!("Forwarding error");
                                 Self::forward_error_to_client(
                                     self.server_state.clone(),
                                     self.addr,
@@ -108,6 +109,7 @@ impl Connection {
                                 self.addr,
                                 error,
                             ) {
+                                log::trace!("Breaking from failing to forward error");
                                 return Ok(());
                             } else {
                                 vec![]
@@ -124,11 +126,13 @@ impl Connection {
                             );
                     }
                     if break_flag {
+                        log::trace!("Breaking from failing to forward error");
                         return Ok(());
                     }
                 }
                 Err(e) => {
                     if Self::forward_error_to_client(self.server_state.clone(), self.addr, e) {
+                        log::trace!("Breaking from failing to forward error");
                         return Ok(());
                     }
                 }
@@ -148,6 +152,7 @@ impl Connection {
         msg: ServerMessage,
         dest: Destination,
     ) -> Result<(), Vec<MessageSendError>> {
+        log::trace!("Trying to send message!");
         match dest {
             message::Destination::Myself => server_state
                 .read()
@@ -177,10 +182,11 @@ impl Connection {
         E: std::error::Error,
     {
         log::error!("Error handling message!: {e:?}");
-        if let Err(e) = server_state.write().send_to_addr(&addr, e.into()) {
+        if let Err(e) = server_state.read().send_to_addr(&addr, e.into()) {
             log::error!("Error sending error message to client: {}!: {e}", addr);
             true
         } else {
+            log::error!("Forwarded error to client");
             false
         }
     }
