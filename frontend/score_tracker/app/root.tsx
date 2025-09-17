@@ -13,9 +13,6 @@ import "./app.css";
 import { createContext } from "react";
 import { BackendConnection } from "./backend";
 
-export const BackendContext = createContext(
-  new BackendConnection("ws://127.0.0.1")
-);
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
@@ -48,13 +45,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return (
-    <BackendContext
-      value={new BackendConnection(import.meta.env.VITE_BACKEND_SOCKET_URL)}
-    >
-      <Outlet />
-    </BackendContext>
-  );
+  return <Outlet />;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

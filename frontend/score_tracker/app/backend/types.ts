@@ -1,115 +1,105 @@
 export type ClientMessage =
   | {
-    CreateRoom: {
       admin_pass: string;
       code: RoomCode;
+      kind: "CreateRoom";
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    JoinRoom: {
+      code: RoomCode;
+      kind: "JoinRoom";
       name: string;
+      [k: string]: unknown;
+    }
+  | {
+      kind: "LeaveRoom";
       room_code: RoomCode;
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    LeaveRoom: RoomCode;
-  }
-  | {
-    RemoveFromRoom: {
+      code: RoomCode;
       id: number;
+      kind: "RemoveFromRoom";
+      [k: string]: unknown;
+    }
+  | {
+      kind: "DeleteRoom";
       room_code: RoomCode;
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    DeleteRoom: RoomCode;
-  }
-  | {
-    RequestAdmin: {
+      kind: "RequestAdmin";
       password: string;
       room: RoomCode;
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    BlessScore: {
       amount: number;
+      kind: "BlessScore";
       to: number;
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    RemoveScore: {
       amount: number;
       from: number;
+      kind: "RemoveScore";
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    GiveScore: {
       amount: number;
+      kind: "GiveScore";
       to: number;
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    TransferScore: {
       amount: number;
       from: number;
+      kind: "TransferScore";
       to: number;
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    CreatePot: {
       description: string;
+      kind: "CreatePot";
       room_code: RoomCode;
       score_requirement: number;
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    JoinPot: {
+      kind: "JoinPot";
       pot_id: number;
       room_code: RoomCode;
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    ResolvePot: {
+      kind: "ResolvePot";
       pot_id: number;
       room_id: RoomCode;
       winner: number;
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    CreateWager: {
+      kind: "CreateWager";
       name: string;
       outcomes: WagerOutcome[];
       room_id: RoomCode;
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    JoinWager: {
       amount: number;
+      kind: "JoinWager";
       outcome_id: number;
       room_id: RoomCode;
       wager_id: number;
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    ResolveWager: {
+      kind: "ResolveWager";
       outcome_id: number;
       room_id: RoomCode;
       wager_id: number;
       [k: string]: unknown;
     };
-  };
 
 export type RoomCode = string;
 
@@ -139,67 +129,78 @@ export interface Pot {
 }
 
 export type ServerMessage =
-  | ("RoomDeleted" | "AdminGranted")
   | {
-    SynchronizeRoom: {
+      kind: "SynchronizeRoom";
       members: MemberState[];
       pots: Pot[];
       wager: Wager[];
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    UserJoined: {
       id: number;
+      kind: "UserJoined";
       name: string;
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    UserRemoved: number;
-  }
+      kind: "RoomDeleted";
+      [k: string]: unknown;
+    }
   | {
-    PotCreated: Pot;
-  }
+      id: number;
+      kind: "UserRemoved";
+      [k: string]: unknown;
+    }
   | {
-    PotJoined: {
+      kind: "PotCreated";
+      pot: Pot;
+      [k: string]: unknown;
+    }
+  | {
+      kind: "PotJoined";
       pot_id: number;
       user_id: number;
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    PotResolved: number;
-  }
+      id: number;
+      kind: "PotResolved";
+      [k: string]: unknown;
+    }
   | {
-    WagerCreated: Wager;
-  }
+      kind: "WagerCreated";
+      wager: Wager;
+      [k: string]: unknown;
+    }
   | {
-    WagerJoined: {
       amount: number;
+      kind: "WagerJoined";
       outcome_id: number;
       user_id: number;
       wager_id: number;
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    WagerResolved: number;
-  }
+      id: number;
+      kind: "WagerResolved";
+      [k: string]: unknown;
+    }
   | {
-    ScoreChanged: {
+      kind: "ScoreChanged";
       new_amount: number;
       user_id: number;
       [k: string]: unknown;
-    };
-  }
+    }
   | {
-    Error: {
+      kind: "AdminGranted";
+      [k: string]: unknown;
+    }
+  | {
       description: string;
       display_to_user: boolean;
+      kind: "Error";
       [k: string]: unknown;
     };
-  };
 
 export interface Wager {
   id: number;

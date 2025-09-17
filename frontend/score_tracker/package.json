@@ -3,12 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node./build/generate_types.js && react-router build",
+    "build": "node ./build/generate_types.js && react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "prettier-watch": "onchange \"**/*\" -- prettier --write --ignore-unknown {{changed}}",
-    "gen-types": "node ./build/generate_types.js"
+    "gen-types": "node ./build/generate_types.js",
+    "prepare": "ts-patch install"
   },
   "dependencies": {
     "@react-router/node": "^7.7.1",
@@ -22,13 +23,15 @@
   },
   "devDependencies": {
     "@react-router/dev": "^7.7.1",
+    "@ryoppippi/unplugin-typia": "^2.6.5",
     "@tailwindcss/vite": "^4.1.4",
     "@types/node": "^20",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "json-schema-to-typescript": "~10.1.4",
     "tailwindcss": "^4.1.4",
-    "typescript": "^5.8.3",
+    "ts-patch": "^3.3.0",
+    "typescript": "~5.9.2",
     "vite": "^6.3.3",
     "vite-tsconfig-paths": "^5.1.4"
   }

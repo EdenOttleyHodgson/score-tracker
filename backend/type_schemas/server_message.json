@@ -3,257 +3,270 @@
   "title": "ServerMessage",
   "oneOf": [
     {
-      "type": "string",
-      "enum": [
-        "RoomDeleted",
-        "AdminGranted"
-      ]
-    },
-    {
       "type": "object",
       "properties": {
-        "SynchronizeRoom": {
-          "type": "object",
-          "properties": {
-            "members": {
-              "type": "array",
-              "items": {
-                "$ref": "#/$defs/MemberState"
-              }
-            },
-            "pots": {
-              "type": "array",
-              "items": {
-                "$ref": "#/$defs/Pot"
-              }
-            },
-            "wager": {
-              "type": "array",
-              "items": {
-                "$ref": "#/$defs/Wager"
-              }
-            }
-          },
-          "required": [
-            "members",
-            "pots",
-            "wager"
-          ]
+        "kind": {
+          "type": "string",
+          "const": "SynchronizeRoom"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MemberState"
+          }
+        },
+        "pots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Pot"
+          }
+        },
+        "wager": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Wager"
+          }
         }
       },
-      "additionalProperties": false,
       "required": [
-        "SynchronizeRoom"
+        "kind",
+        "members",
+        "pots",
+        "wager"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "UserJoined": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            },
-            "name": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "name",
-            "id"
-          ]
-        }
-      },
-      "additionalProperties": false,
-      "required": [
-        "UserJoined"
-      ]
-    },
-    {
-      "type": "object",
-      "properties": {
-        "UserRemoved": {
+        "id": {
           "type": "integer",
           "format": "uint",
           "minimum": 0
+        },
+        "kind": {
+          "type": "string",
+          "const": "UserJoined"
+        },
+        "name": {
+          "type": "string"
         }
       },
-      "additionalProperties": false,
       "required": [
-        "UserRemoved"
+        "kind",
+        "name",
+        "id"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "PotCreated": {
+        "kind": {
+          "type": "string",
+          "const": "RoomDeleted"
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
+        },
+        "kind": {
+          "type": "string",
+          "const": "UserRemoved"
+        }
+      },
+      "required": [
+        "kind",
+        "id"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "PotCreated"
+        },
+        "pot": {
           "$ref": "#/$defs/Pot"
         }
       },
-      "additionalProperties": false,
       "required": [
-        "PotCreated"
+        "kind",
+        "pot"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "PotJoined": {
-          "type": "object",
-          "properties": {
-            "pot_id": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            },
-            "user_id": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            }
-          },
-          "required": [
-            "pot_id",
-            "user_id"
-          ]
-        }
-      },
-      "additionalProperties": false,
-      "required": [
-        "PotJoined"
-      ]
-    },
-    {
-      "type": "object",
-      "properties": {
-        "PotResolved": {
+        "kind": {
+          "type": "string",
+          "const": "PotJoined"
+        },
+        "pot_id": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
+        },
+        "user_id": {
           "type": "integer",
           "format": "uint",
           "minimum": 0
         }
       },
-      "additionalProperties": false,
       "required": [
-        "PotResolved"
+        "kind",
+        "pot_id",
+        "user_id"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "WagerCreated": {
+        "id": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
+        },
+        "kind": {
+          "type": "string",
+          "const": "PotResolved"
+        }
+      },
+      "required": [
+        "kind",
+        "id"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "WagerCreated"
+        },
+        "wager": {
           "$ref": "#/$defs/Wager"
         }
       },
-      "additionalProperties": false,
       "required": [
-        "WagerCreated"
+        "kind",
+        "wager"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "WagerJoined": {
-          "type": "object",
-          "properties": {
-            "amount": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "outcome_id": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            },
-            "user_id": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            },
-            "wager_id": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            }
-          },
-          "required": [
-            "wager_id",
-            "user_id",
-            "outcome_id",
-            "amount"
-          ]
-        }
-      },
-      "additionalProperties": false,
-      "required": [
-        "WagerJoined"
-      ]
-    },
-    {
-      "type": "object",
-      "properties": {
-        "WagerResolved": {
+        "amount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "kind": {
+          "type": "string",
+          "const": "WagerJoined"
+        },
+        "outcome_id": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
+        },
+        "user_id": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
+        },
+        "wager_id": {
           "type": "integer",
           "format": "uint",
           "minimum": 0
         }
       },
-      "additionalProperties": false,
       "required": [
-        "WagerResolved"
+        "kind",
+        "wager_id",
+        "user_id",
+        "outcome_id",
+        "amount"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "ScoreChanged": {
-          "type": "object",
-          "properties": {
-            "new_amount": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "user_id": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            }
-          },
-          "required": [
-            "user_id",
-            "new_amount"
-          ]
+        "id": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
+        },
+        "kind": {
+          "type": "string",
+          "const": "WagerResolved"
         }
       },
-      "additionalProperties": false,
       "required": [
-        "ScoreChanged"
+        "kind",
+        "id"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "Error": {
-          "type": "object",
-          "properties": {
-            "description": {
-              "type": "string"
-            },
-            "display_to_user": {
-              "type": "boolean"
-            }
-          },
-          "required": [
-            "description",
-            "display_to_user"
-          ]
+        "kind": {
+          "type": "string",
+          "const": "ScoreChanged"
+        },
+        "new_amount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "user_id": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
         }
       },
-      "additionalProperties": false,
       "required": [
-        "Error"
+        "kind",
+        "user_id",
+        "new_amount"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "AdminGranted"
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "display_to_user": {
+          "type": "boolean"
+        },
+        "kind": {
+          "type": "string",
+          "const": "Error"
+        }
+      },
+      "required": [
+        "kind",
+        "description",
+        "display_to_user"
       ]
     }
   ],

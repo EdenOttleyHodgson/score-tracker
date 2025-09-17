@@ -167,7 +167,10 @@ impl ServerState {
                 self.add_room(code, admin_pass)?;
                 Ok(Vec::new())
             }
-            ClientMessage::JoinRoom(room_code, name) => {
+            ClientMessage::JoinRoom {
+                code: room_code,
+                name,
+            } => {
                 let id = self.add_user_to_room(room_code, sender, name.clone())?;
                 let (members, pots, wager) = self
                     .rooms
@@ -191,7 +194,7 @@ impl ServerState {
                     ),
                 ])
             }
-            ClientMessage::LeaveRoom(room_code) => {
+            ClientMessage::LeaveRoom { room_code } => {
                 let rooms = self.rooms.read();
                 let mut room = rooms
                     .get(&room_code)
@@ -202,11 +205,14 @@ impl ServerState {
                     .ok_or(RoomMutationError::AddressNotInRoom(sender, room_code))?;
                 room.remove_user(id)?;
                 Ok(vec![(
-                    ServerMessage::UserRemoved(id),
+                    ServerMessage::UserRemoved { id },
                     Destination::PeersExclusive,
                 )])
             }
-            ClientMessage::RemoveFromRoom(room_code, removed_id) => {
+            ClientMessage::RemoveFromRoom {
+                code: room_code,
+                id: removed_id,
+            } => {
                 self.rooms
                     .read()
                     .get(&room_code)
@@ -214,11 +220,11 @@ impl ServerState {
                     .write()
                     .remove_user(removed_id)?;
                 Ok(vec![(
-                    ServerMessage::UserRemoved(removed_id),
+                    ServerMessage::UserRemoved { id: removed_id },
                     Destination::PeersInclusive,
                 )])
             }
-            ClientMessage::DeleteRoom(room_code) => {
+            ClientMessage::DeleteRoom { room_code } => {
                 self.delete_room(room_code)?;
                 Ok(vec![(
                     ServerMessage::RoomDeleted,
@@ -340,7 +346,7 @@ impl ServerState {
                     .write()
                     .create_pot(score_requirement, description);
                 Ok(vec![(
-                    ServerMessage::PotCreated(pot),
+                    ServerMessage::PotCreated { pot },
                     Destination::PeersInclusive,
                 )])
             }
@@ -383,7 +389,7 @@ impl ServerState {
                     .resolve_pot(pot_id, winner)?;
                 Ok(vec![
                     (
-                        ServerMessage::PotResolved(pot_id),
+                        ServerMessage::PotResolved { id: pot_id },
                         Destination::PeersInclusive,
                     ),
                     (
@@ -408,7 +414,7 @@ impl ServerState {
                     .write()
                     .create_wager(name, outcomes);
                 Ok(vec![(
-                    ServerMessage::WagerCreated(wager),
+                    ServerMessage::WagerCreated { wager },
                     Destination::PeersInclusive,
                 )])
             }
@@ -475,7 +481,7 @@ impl ServerState {
                     })
                     .collect_vec();
                 msgs.push((
-                    ServerMessage::WagerResolved(wager_id),
+                    ServerMessage::WagerResolved { id: wager_id },
                     Destination::PeersInclusive,
                 ));
                 Ok(msgs)

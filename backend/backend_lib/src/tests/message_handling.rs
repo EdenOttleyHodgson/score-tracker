@@ -107,7 +107,10 @@ fn room_joining_invalid_expected() -> MessageTestErrorExpected {
 }
 #[fixture]
 fn leaving_expected() -> MessageTestExpected {
-    vec![(ServerMessage::UserRemoved(0), Destination::PeersExclusive)]
+    vec![(
+        ServerMessage::UserRemoved { id: 0 },
+        Destination::PeersExclusive,
+    )]
 }
 #[fixture]
 fn leaving_invalid_expected() -> MessageTestErrorExpected {
@@ -121,7 +124,10 @@ fn leaving_invalid_expected() -> MessageTestErrorExpected {
 }
 #[fixture]
 fn removing_expected() -> MessageTestExpected {
-    vec![(ServerMessage::UserRemoved(1), Destination::PeersInclusive)]
+    vec![(
+        ServerMessage::UserRemoved { id: 1 },
+        Destination::PeersInclusive,
+    )]
 }
 #[fixture]
 fn removing_invalid_expected() -> MessageTestErrorExpected {
@@ -245,7 +251,9 @@ fn score_transferal_invalid_expected() -> MessageTestErrorExpected {
 #[fixture]
 fn wager_creation_expected() -> MessageTestExpected {
     vec![(
-        ServerMessage::WagerCreated(WAGER_1.clone()),
+        ServerMessage::WagerCreated {
+            wager: WAGER_1.clone(),
+        },
         Destination::PeersInclusive,
     )]
 }
@@ -306,7 +314,10 @@ fn wager_resolution_expected() -> MessageTestExpected {
             },
             Destination::PeersInclusive,
         ),
-        (ServerMessage::WagerResolved(0), Destination::PeersInclusive),
+        (
+            ServerMessage::WagerResolved { id: 0 },
+            Destination::PeersInclusive,
+        ),
     ]
 }
 #[fixture]
@@ -329,7 +340,9 @@ fn wager_resolution_invalid_expected() -> MessageTestErrorExpected {
 #[fixture]
 fn pot_creation_expected() -> MessageTestExpected {
     vec![(
-        ServerMessage::PotCreated(Pot::new(0, *SCORE_AMT_1, "description".to_owned())),
+        ServerMessage::PotCreated {
+            pot: Pot::new(0, *SCORE_AMT_1, "description".to_owned()),
+        },
         Destination::PeersInclusive,
     )]
 }
@@ -374,7 +387,10 @@ fn pot_joining_invalid_expected() -> MessageTestErrorExpected {
 #[fixture]
 fn pot_resolution_expected() -> MessageTestExpected {
     vec![
-        (ServerMessage::PotResolved(0), Destination::PeersInclusive),
+        (
+            ServerMessage::PotResolved { id: 0 },
+            Destination::PeersInclusive,
+        ),
         (
             ServerMessage::ScoreChanged {
                 user_id: 0,
@@ -420,7 +436,10 @@ fn room_joining(multi_client_state: StateFixture, room_joining_expected: Message
     let (_, mut connections) = multi_client_state;
     room_init(&mut connections[0]);
 
-    connections[0].send_message(ClientMessage::JoinRoom(*ROOM_CODE_1, USER_NAME_1.clone()));
+    connections[0].send_message(ClientMessage::JoinRoom {
+        code: *ROOM_CODE_1,
+        name: USER_NAME_1.clone(),
+    });
     connections[0].assert_success(room_joining_expected);
 }
 #[rstest]
@@ -429,7 +448,10 @@ fn room_joining_invalid(
     room_joining_invalid_expected: MessageTestErrorExpected,
 ) {
     let (_, mut connections) = multi_client_state;
-    connections[0].send_message(ClientMessage::JoinRoom(*ROOM_CODE_1, "grog".into()));
+    connections[0].send_message(ClientMessage::JoinRoom {
+        code: *ROOM_CODE_1,
+        name: "grog".into(),
+    });
     connections[0].assert_failure(room_joining_invalid_expected);
 }
 #[rstest]
@@ -437,7 +459,9 @@ fn room_leaving(multi_client_state: StateFixture, leaving_expected: MessageTestE
     let (_, mut connections) = multi_client_state;
     room_init(&mut connections[0]);
     room_join_setup(&mut connections[0]);
-    connections[0].send_message(ClientMessage::LeaveRoom(*ROOM_CODE_1));
+    connections[0].send_message(ClientMessage::LeaveRoom {
+        room_code: *ROOM_CODE_1,
+    });
     connections[0].assert_success(leaving_expected);
 }
 #[rstest]
@@ -446,7 +470,9 @@ fn room_leaving_invalid(
     leaving_invalid_expected: MessageTestErrorExpected,
 ) {
     let (_, mut connections) = multi_client_state;
-    let msg = ClientMessage::LeaveRoom(*ROOM_CODE_1);
+    let msg = ClientMessage::LeaveRoom {
+        room_code: *ROOM_CODE_1,
+    };
     connections[0].send_message(msg.clone());
     room_init(&mut connections[0]);
     connections[0].send_message(msg.clone());
@@ -458,7 +484,10 @@ fn room_removing(multi_client_state: StateFixture, removing_expected: MessageTes
     room_init(&mut connections[0]);
     room_join_setup_admin(&mut connections[0]);
     room_join_setup(&mut connections[1]);
-    connections[0].send_message(ClientMessage::RemoveFromRoom(*ROOM_CODE_1, 1));
+    connections[0].send_message(ClientMessage::RemoveFromRoom {
+        code: *ROOM_CODE_1,
+        id: 1,
+    });
     connections[0].assert_success(removing_expected);
 }
 #[rstest]
@@ -467,7 +496,10 @@ fn room_removing_invalid(
     removing_invalid_expected: MessageTestErrorExpected,
 ) {
     let (_, mut connections) = multi_client_state;
-    let msg = ClientMessage::RemoveFromRoom(*ROOM_CODE_1, 1);
+    let msg = ClientMessage::RemoveFromRoom {
+        code: *ROOM_CODE_1,
+        id: 1,
+    };
     connections[0].send_message(msg.clone());
     room_init(&mut connections[0]);
     room_join_setup_admin(&mut connections[0]);
@@ -479,7 +511,9 @@ fn room_deletion(multi_client_state: StateFixture, deletion_expected: MessageTes
     let (_, mut connections) = multi_client_state;
     room_init(&mut connections[0]);
     room_join_setup_admin(&mut connections[0]);
-    connections[0].send_message(ClientMessage::DeleteRoom(*ROOM_CODE_1));
+    connections[0].send_message(ClientMessage::DeleteRoom {
+        room_code: *ROOM_CODE_1,
+    });
     connections[0].assert_success(deletion_expected);
 }
 #[rstest]
@@ -488,7 +522,9 @@ fn room_deletion_invalid(
     deletion_invalid_expected: MessageTestErrorExpected,
 ) {
     let (_, mut connections) = multi_client_state;
-    connections[0].send_message(ClientMessage::DeleteRoom(*ROOM_CODE_1));
+    connections[0].send_message(ClientMessage::DeleteRoom {
+        room_code: *ROOM_CODE_1,
+    });
     connections[0].assert_failure(deletion_invalid_expected);
 }
 #[rstest]
@@ -856,7 +892,9 @@ fn wager_resolution_invalid(
     room_join_wager(&mut connections[0], 0);
     room_join_wager(&mut connections[1], 0);
     connections[0].send_message(msg.clone());
-    connections[1].send_message_setup(ClientMessage::LeaveRoom(*ROOM_CODE_1));
+    connections[1].send_message_setup(ClientMessage::LeaveRoom {
+        room_code: *ROOM_CODE_1,
+    });
     connections[0].send_message(ClientMessage::ResolveWager {
         room_id: *ROOM_CODE_1,
         wager_id: 0,
@@ -873,7 +911,10 @@ fn room_init(con: &mut MockConnection) {
 }
 
 fn room_join_setup(con: &mut MockConnection) {
-    con.send_message_setup(ClientMessage::JoinRoom(*ROOM_CODE_1, USER_NAME_1.clone()));
+    con.send_message_setup(ClientMessage::JoinRoom {
+        code: *ROOM_CODE_1,
+        name: USER_NAME_1.clone(),
+    });
 }
 
 fn room_join_setup_admin(con: &mut MockConnection) {

@@ -5,420 +5,376 @@
     {
       "type": "object",
       "properties": {
-        "CreateRoom": {
-          "type": "object",
-          "properties": {
-            "admin_pass": {
-              "type": "string"
-            },
-            "code": {
-              "$ref": "#/$defs/RoomCode"
-            }
-          },
-          "required": [
-            "code",
-            "admin_pass"
-          ]
+        "admin_pass": {
+          "type": "string"
+        },
+        "code": {
+          "$ref": "#/$defs/RoomCode"
+        },
+        "kind": {
+          "type": "string",
+          "const": "CreateRoom"
         }
       },
-      "additionalProperties": false,
       "required": [
-        "CreateRoom"
+        "kind",
+        "code",
+        "admin_pass"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "JoinRoom": {
-          "type": "array",
-          "maxItems": 2,
-          "minItems": 2,
-          "prefixItems": [
-            {
-              "$ref": "#/$defs/RoomCode"
-            },
-            {
-              "type": "string"
-            }
-          ]
+        "code": {
+          "$ref": "#/$defs/RoomCode"
+        },
+        "kind": {
+          "type": "string",
+          "const": "JoinRoom"
+        },
+        "name": {
+          "type": "string"
         }
       },
-      "additionalProperties": false,
       "required": [
-        "JoinRoom"
+        "kind",
+        "code",
+        "name"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "LeaveRoom": {
+        "kind": {
+          "type": "string",
+          "const": "LeaveRoom"
+        },
+        "room_code": {
           "$ref": "#/$defs/RoomCode"
         }
       },
-      "additionalProperties": false,
       "required": [
-        "LeaveRoom"
+        "kind",
+        "room_code"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "RemoveFromRoom": {
-          "type": "array",
-          "maxItems": 2,
-          "minItems": 2,
-          "prefixItems": [
-            {
-              "$ref": "#/$defs/RoomCode"
-            },
-            {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            }
-          ]
+        "code": {
+          "$ref": "#/$defs/RoomCode"
+        },
+        "id": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
+        },
+        "kind": {
+          "type": "string",
+          "const": "RemoveFromRoom"
         }
       },
-      "additionalProperties": false,
       "required": [
-        "RemoveFromRoom"
+        "kind",
+        "code",
+        "id"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "DeleteRoom": {
+        "kind": {
+          "type": "string",
+          "const": "DeleteRoom"
+        },
+        "room_code": {
           "$ref": "#/$defs/RoomCode"
         }
       },
-      "additionalProperties": false,
       "required": [
-        "DeleteRoom"
+        "kind",
+        "room_code"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "RequestAdmin": {
-          "type": "object",
-          "properties": {
-            "password": {
-              "type": "string"
-            },
-            "room": {
-              "$ref": "#/$defs/RoomCode"
-            }
-          },
-          "required": [
-            "room",
-            "password"
-          ]
+        "kind": {
+          "type": "string",
+          "const": "RequestAdmin"
+        },
+        "password": {
+          "type": "string"
+        },
+        "room": {
+          "$ref": "#/$defs/RoomCode"
         }
       },
-      "additionalProperties": false,
       "required": [
-        "RequestAdmin"
+        "kind",
+        "room",
+        "password"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "BlessScore": {
-          "type": "object",
-          "properties": {
-            "amount": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "to": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            }
-          },
-          "required": [
-            "to",
-            "amount"
-          ]
+        "amount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "kind": {
+          "type": "string",
+          "const": "BlessScore"
+        },
+        "to": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
         }
       },
-      "additionalProperties": false,
       "required": [
-        "BlessScore"
+        "kind",
+        "to",
+        "amount"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "RemoveScore": {
-          "type": "object",
-          "properties": {
-            "amount": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "from": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            }
-          },
-          "required": [
-            "from",
-            "amount"
-          ]
+        "amount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "from": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
+        },
+        "kind": {
+          "type": "string",
+          "const": "RemoveScore"
         }
       },
-      "additionalProperties": false,
       "required": [
-        "RemoveScore"
+        "kind",
+        "from",
+        "amount"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "GiveScore": {
-          "type": "object",
-          "properties": {
-            "amount": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "to": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            }
-          },
-          "required": [
-            "to",
-            "amount"
-          ]
+        "amount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "kind": {
+          "type": "string",
+          "const": "GiveScore"
+        },
+        "to": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
         }
       },
-      "additionalProperties": false,
       "required": [
-        "GiveScore"
+        "kind",
+        "to",
+        "amount"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "TransferScore": {
-          "type": "object",
-          "properties": {
-            "amount": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "from": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            },
-            "to": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            }
-          },
-          "required": [
-            "from",
-            "to",
-            "amount"
-          ]
+        "amount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "from": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
+        },
+        "kind": {
+          "type": "string",
+          "const": "TransferScore"
+        },
+        "to": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
         }
       },
-      "additionalProperties": false,
       "required": [
-        "TransferScore"
+        "kind",
+        "from",
+        "to",
+        "amount"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "CreatePot": {
-          "type": "object",
-          "properties": {
-            "description": {
-              "type": "string"
-            },
-            "room_code": {
-              "$ref": "#/$defs/RoomCode"
-            },
-            "score_requirement": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          "required": [
-            "room_code",
-            "score_requirement",
-            "description"
-          ]
+        "description": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "const": "CreatePot"
+        },
+        "room_code": {
+          "$ref": "#/$defs/RoomCode"
+        },
+        "score_requirement": {
+          "type": "integer",
+          "format": "int64"
         }
       },
-      "additionalProperties": false,
       "required": [
-        "CreatePot"
+        "kind",
+        "room_code",
+        "score_requirement",
+        "description"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "JoinPot": {
-          "type": "object",
-          "properties": {
-            "pot_id": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            },
-            "room_code": {
-              "$ref": "#/$defs/RoomCode"
-            }
-          },
-          "required": [
-            "room_code",
-            "pot_id"
-          ]
+        "kind": {
+          "type": "string",
+          "const": "JoinPot"
+        },
+        "pot_id": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
+        },
+        "room_code": {
+          "$ref": "#/$defs/RoomCode"
         }
       },
-      "additionalProperties": false,
       "required": [
-        "JoinPot"
+        "kind",
+        "room_code",
+        "pot_id"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "ResolvePot": {
-          "type": "object",
-          "properties": {
-            "pot_id": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            },
-            "room_id": {
-              "$ref": "#/$defs/RoomCode"
-            },
-            "winner": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            }
-          },
-          "required": [
-            "room_id",
-            "pot_id",
-            "winner"
-          ]
+        "kind": {
+          "type": "string",
+          "const": "ResolvePot"
+        },
+        "pot_id": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
+        },
+        "room_id": {
+          "$ref": "#/$defs/RoomCode"
+        },
+        "winner": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
         }
       },
-      "additionalProperties": false,
       "required": [
-        "ResolvePot"
+        "kind",
+        "room_id",
+        "pot_id",
+        "winner"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "CreateWager": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "outcomes": {
-              "type": "array",
-              "items": {
-                "$ref": "#/$defs/WagerOutcome"
-              }
-            },
-            "room_id": {
-              "$ref": "#/$defs/RoomCode"
-            }
-          },
-          "required": [
-            "room_id",
-            "name",
-            "outcomes"
-          ]
+        "kind": {
+          "type": "string",
+          "const": "CreateWager"
+        },
+        "name": {
+          "type": "string"
+        },
+        "outcomes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WagerOutcome"
+          }
+        },
+        "room_id": {
+          "$ref": "#/$defs/RoomCode"
         }
       },
-      "additionalProperties": false,
       "required": [
-        "CreateWager"
+        "kind",
+        "room_id",
+        "name",
+        "outcomes"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "JoinWager": {
-          "type": "object",
-          "properties": {
-            "amount": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "outcome_id": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            },
-            "room_id": {
-              "$ref": "#/$defs/RoomCode"
-            },
-            "wager_id": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            }
-          },
-          "required": [
-            "room_id",
-            "wager_id",
-            "outcome_id",
-            "amount"
-          ]
+        "amount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "kind": {
+          "type": "string",
+          "const": "JoinWager"
+        },
+        "outcome_id": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
+        },
+        "room_id": {
+          "$ref": "#/$defs/RoomCode"
+        },
+        "wager_id": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
         }
       },
-      "additionalProperties": false,
       "required": [
-        "JoinWager"
+        "kind",
+        "room_id",
+        "wager_id",
+        "outcome_id",
+        "amount"
       ]
     },
     {
       "type": "object",
       "properties": {
-        "ResolveWager": {
-          "type": "object",
-          "properties": {
-            "outcome_id": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            },
-            "room_id": {
-              "$ref": "#/$defs/RoomCode"
-            },
-            "wager_id": {
-              "type": "integer",
-              "format": "uint",
-              "minimum": 0
-            }
-          },
-          "required": [
-            "room_id",
-            "wager_id",
-            "outcome_id"
-          ]
+        "kind": {
+          "type": "string",
+          "const": "ResolveWager"
+        },
+        "outcome_id": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
+        },
+        "room_id": {
+          "$ref": "#/$defs/RoomCode"
+        },
+        "wager_id": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
         }
       },
-      "additionalProperties": false,
       "required": [
-        "ResolveWager"
+        "kind",
+        "room_id",
+        "wager_id",
+        "outcome_id"
       ]
     }
   ],

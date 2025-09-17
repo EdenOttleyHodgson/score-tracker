@@ -29,7 +29,6 @@ async function main() {
     let schema = JSON.parse(await fs.readFile(f_path));
     let compiled = await compile(schema, schema.title, {
       bannerComment: "",
-      inferStringEnumKeysFromValues: true,
     });
     for (let type of compiled.split("export")) {
       if (!type) {

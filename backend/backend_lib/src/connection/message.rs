@@ -24,6 +24,7 @@ pub enum Destination {
 
 //These enums should contain values that update the state of the client accordingly
 #[derive(Serialize, Clone, PartialEq, Eq, Debug, schemars::JsonSchema)]
+#[serde(tag = "kind")]
 pub enum ServerMessage {
     SynchronizeRoom {
         members: Vec<MemberState>,
@@ -35,21 +36,31 @@ pub enum ServerMessage {
         id: ID,
     },
     RoomDeleted,
-    UserRemoved(ID),
-    PotCreated(Pot),
+    UserRemoved {
+        id: ID,
+    },
+    PotCreated {
+        pot: Pot,
+    },
     PotJoined {
         pot_id: ID,
         user_id: ID,
     },
-    PotResolved(ID),
-    WagerCreated(Wager),
+    PotResolved {
+        id: ID,
+    },
+    WagerCreated {
+        wager: Wager,
+    },
     WagerJoined {
         wager_id: ID,
         user_id: ID,
         outcome_id: ID,
         amount: i64,
     },
-    WagerResolved(ID),
+    WagerResolved {
+        id: ID,
+    },
     ScoreChanged {
         user_id: ID,
         new_amount: i64,
@@ -70,15 +81,26 @@ impl TryInto<WSMessage> for ServerMessage {
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, schemars::JsonSchema)]
+#[serde(tag = "kind")]
 pub enum ClientMessage {
     CreateRoom {
         code: RoomCode,
         admin_pass: String,
     },
-    JoinRoom(RoomCode, String),
-    LeaveRoom(RoomCode),
-    RemoveFromRoom(RoomCode, ID),
-    DeleteRoom(RoomCode),
+    JoinRoom {
+        code: RoomCode,
+        name: String,
+    },
+    LeaveRoom {
+        room_code: RoomCode,
+    },
+    RemoveFromRoom {
+        code: RoomCode,
+        id: ID,
+    },
+    DeleteRoom {
+        room_code: RoomCode,
+    },
     RequestAdmin {
         room: RoomCode,
         password: String,
@@ -141,10 +163,10 @@ impl ClientMessage {
                 code: _,
                 admin_pass: _,
             } => None,
-            ClientMessage::JoinRoom(_, _) => None,
-            ClientMessage::LeaveRoom(_) => None,
-            ClientMessage::RemoveFromRoom(code, _) => Some(Some(*code)),
-            ClientMessage::DeleteRoom(code) => Some(Some(*code)),
+            ClientMessage::JoinRoom { code: _, name: _ } => None,
+            ClientMessage::LeaveRoom { room_code: _ } => None,
+            ClientMessage::RemoveFromRoom { code, id: _ } => Some(Some(*code)),
+            ClientMessage::DeleteRoom { room_code: code } => Some(Some(*code)),
             ClientMessage::RequestAdmin {
                 room: _,
                 password: _,
