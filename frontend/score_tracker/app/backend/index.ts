@@ -1,12 +1,13 @@
+import { useEffect } from "react";
 import type { ServerMessage, ClientMessage } from "./types";
 import * as typia from "typia";
 
 type MessageHook = (arg0: ServerMessage) => void;
 
 export class BackendConnection {
-  socket: WebSocket;
-  static instance: BackendConnection | null = null;
-  message_hooks: Map<string, MessageHook> = new Map();
+  private socket: WebSocket;
+  private static instance: BackendConnection | null = null;
+  private message_hooks: Map<string, MessageHook> = new Map();
 
   static getInstance(): BackendConnection {
     if (!BackendConnection.instance) {
@@ -44,6 +45,15 @@ export class BackendConnection {
     console.log("Sending msg");
     this.socket.send(JSON.stringify(msg));
   }
+}
+
+export function useBackendHook(id: string, hook: MessageHook) {
+  useEffect(() => {
+    BackendConnection.getInstance().add_hook(id, hook);
+    return () => {
+      BackendConnection.getInstance().remove_hook(id);
+    };
+  }, []);
 }
 
 function parse_message(msg: string): ServerMessage | null {

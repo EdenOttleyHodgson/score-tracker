@@ -2,10 +2,11 @@ import {
   useContext,
   useState,
   type Dispatch,
+  type FormEvent,
   type SetStateAction,
 } from "react";
 import type { Route } from "./+types/main_menu";
-import { BackendConnection } from "~/backend";
+import { BackendConnection, useBackendHook } from "~/backend";
 import type { ServerMessage } from "~/backend/types";
 
 // provides `loaderData` to the component
@@ -14,34 +15,23 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export default function MainMenu() {
-  const backend = BackendConnection.getInstance();
-  const init_arr: ServerMessage[] = [];
-
-  const [messages, setMessages] = useState(init_arr);
-  backend.add_hook("main_menu", (msg) => {
-    console.log(JSON.stringify(msg));
-    setMessages((x) => [...x, msg]);
-  });
-  const messageList = messages.map((value, index) => (
-    <li key={index}>{JSON.stringify(value)}</li>
-  ));
-
-  console.log(`yes....${backend}`);
+  // const [name, setName] = useState("")
+  // const [code, setCode] = useState("")
+  //
+  // function handleSubmit(data: FormData) {
+  //   console.log(data.get("name"), data.get("roomCode"));
+  // }
   return (
-    <div>
-      <p>hello</p>
-      <button
-        onClick={() =>
-          backend.send_message({
-            kind: "JoinRoom",
-            code: "AAAAAAAA",
-            name: "my plarkatingas",
-          })
-        }
-      >
-        button
-      </button>
-      <ul>{messageList}</ul>
-    </div>
+    <form action="/room">
+      <label>
+        Display Name:
+        <input name="name" defaultValue="User" />
+      </label>
+      <label>
+        Room Code:
+        <input name="roomCode" />
+      </label>
+      <button type="submit">Join</button>
+    </form>
   );
 }
