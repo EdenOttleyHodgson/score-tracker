@@ -15,6 +15,4 @@ export function initMemberState(id: number, name: string): MemberState {
   };
 }
 
-export function makeMemberMap(array: MemberState[]): GeneratedMap<MemberState> {
-  return Object.fromEntries(array.map((member) => [member.id, member]));
-}
+

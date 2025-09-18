@@ -1,13 +1,7 @@
-import {
-  useContext,
-  useState,
-  type Dispatch,
-  type FormEvent,
-  type SetStateAction,
-} from "react";
+import { useState } from "react";
 import type { Route } from "./+types/main_menu";
-import { BackendConnection, useBackendHook } from "~/backend";
-import type { ServerMessage } from "~/backend/types";
+import { NavLink } from "react-router";
+import { BackendConnection } from "~/backend";
 
 // provides `loaderData` to the component
 export async function loader({ params }: Route.LoaderArgs) {
@@ -15,23 +9,21 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export default function MainMenu() {
-  // const [name, setName] = useState("")
-  // const [code, setCode] = useState("")
-  //
-  // function handleSubmit(data: FormData) {
-  //   console.log(data.get("name"), data.get("roomCode"));
-  // }
+  const [roomCode, setRoomCode] = useState("")
   return (
-    <form action="/room">
+    <div>
       <label>
         Display Name:
-        <input name="name" defaultValue="User" />
+        <input name="name" onChange={e => localStorage.setItem("displayName", e.target.value)} />
       </label>
       <label>
         Room Code:
-        <input name="roomCode" />
+        <input name="roomCode" value={roomCode} onChange={e => setRoomCode(e.target.value)} />
       </label>
-      <button type="submit">Join</button>
-    </form>
+      <NavLink to={`room/${roomCode}`}>Join</NavLink>
+      <NavLink to={`room/${roomCode}?create=true`}>Create</NavLink>
+
+
+    </div>
   );
 }

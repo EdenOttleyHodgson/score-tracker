@@ -8,17 +8,29 @@ export class BackendConnection {
   private socket: WebSocket;
   private static instance: BackendConnection | null = null;
   private message_hooks: Map<string, MessageHook> = new Map();
-
-  static getInstance(): BackendConnection {
-    if (!BackendConnection.instance) {
-      BackendConnection.instance = new BackendConnection(
-        import.meta.env.VITE_BACKEND_SOCKET_URL
-      );
-    }
-    return BackendConnection.instance;
+  static resetInstance() {
+    BackendConnection.instance = null
   }
-  private constructor(uri: string) {
+
+  static async getInstance(): Promise<BackendConnection> {
+    if (BackendConnection.instance) {
+      return BackendConnection.instance
+    } else {
+      return new Promise((resolve, reject) => {
+        const instance = new BackendConnection(import.meta.env.VITE_BACKEND_SOCKET_URL, (_) => {
+          BackendConnection.instance = instance
+          resolve(BackendConnection.instance)
+        }, (e) => {
+          reject(e)
+        })
+      })
+    }
+  }
+
+  private constructor(uri: string, on_open: (ev: Event) => void, on_error: (ev: Event) => void) {
     this.socket = new WebSocket(uri);
+    this.socket.addEventListener("open", on_open)
+    this.socket.addEventListener("error", on_error)
     this.socket.addEventListener("message", (ev) => {
       let parsed = parse_message(ev.data);
       if (parsed) {
@@ -47,11 +59,15 @@ export class BackendConnection {
   }
 }
 
-export function useBackendHook(id: string, hook: MessageHook) {
+export function useBackendHook(id: string, hook: MessageHook, onFail: () => void) {
   useEffect(() => {
-    BackendConnection.getInstance().add_hook(id, hook);
+    BackendConnection.getInstance().then((instance) =>
+      instance.add_hook(id, hook)
+    ).catch((e) => { console.error(e); onFail() })
+
+
     return () => {
-      BackendConnection.getInstance().remove_hook(id);
+      BackendConnection.getInstance().then((instance) => instance.remove_hook(id)).catch((instance) => { BackendConnection.resetInstance(); onFail() })
     };
   }, []);
 }

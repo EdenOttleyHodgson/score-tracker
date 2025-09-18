@@ -3,7 +3,7 @@ import { get_from_genmap, type GeneratedMap, type MemberMap } from "~/types";
 
 interface WagerProps {
   wager: Wager;
-  member_map: MemberMap;
+  member_map: Map<number, MemberState>;
 }
 
 export default function Wager({ wager, member_map }: WagerProps) {
@@ -60,7 +60,7 @@ function WagerMember({
 function make_wager_member(
   p_id: number,
   choice_id: string,
-  member_map: GeneratedMap<MemberState>,
+  member_map: Map<number, MemberState>,
   outcomes: GeneratedMap<WagerOutcome>,
   amounts: GeneratedMap<number>
 ): WagerMemberProps {
@@ -68,7 +68,7 @@ function make_wager_member(
   if (!choice_name)
     throw new Error(`Choice with id ${choice_id} not found in outcome map`);
   const p_id_str = p_id.toString();
-  const username = get_from_genmap(member_map, p_id_str)?.name;
+  const username = member_map.get(p_id)?.name;
   if (!username)
     throw new Error(`User with id ${p_id} not found in member map`);
   const amount_wagered = get_from_genmap(amounts, p_id_str);

@@ -2,7 +2,7 @@ import { BackendConnection, useBackendHook } from "~/backend";
 import type { Route } from "./+types/room";
 import { useEffect, useState } from "react";
 import type { MemberState, Pot, ServerMessage, Wager } from "~/backend/types";
-import { initMemberState, makeMemberMap, unreachable } from "~/utils";
+import { initMemberState, unreachable } from "~/utils";
 import { useNavigate } from "react-router";
 import { extend_genmap, get_from_genmap } from "~/types";
 import WagerComponent from "~/components/wager";
@@ -10,6 +10,7 @@ import PotComponent from "~/components/pot";
 import Member from "~/components/member";
 export async function clientLoader({ params }: Route.LoaderArgs) {
   return {
+
     code: params.roomCode,
     name: localStorage.getItem("displayName") || "User",
   };
@@ -21,6 +22,7 @@ export default function Room({ loaderData }: Route.ComponentProps) {
   const [members, setMembers] = useState<MemberState[] | undefined>(undefined);
   const [wagers, setWagers] = useState<Wager[] | undefined>(undefined);
   const [pots, setPots] = useState<Pot[] | undefined>(undefined);
+  const navigator = useNavigate()
   const ready = members && wagers && pots;
   function handle_message(msg: ServerMessage) {
     switch (msg.kind) {
@@ -123,25 +125,36 @@ export default function Room({ loaderData }: Route.ComponentProps) {
         return unreachable(msg);
     }
   }
-  useBackendHook("room", (msg) => handle_message(msg));
+  console.log("1plarka")
+  function onFail() {
+    navigator("/NoServerConnection")
+  }
+  useBackendHook("room", (msg) => handle_message(msg), onFail);
   useEffect(() => {
-    const backend = BackendConnection.getInstance();
-    backend.send_message({
-      kind: "JoinRoom",
-      code: loaderData.code,
-      name: loaderData.name,
+    BackendConnection.getInstance().then((backend) => {
+      backend.send_message({
+        kind: "JoinRoom",
+        code: loaderData.code,
+        name: loaderData.name,
+      });
+    }).catch((e) => {
+      console.error(e)
+      onFail()
     });
-    return () =>
-      backend.send_message({ kind: "LeaveRoom", room_code: loaderData.code });
+    return () => {
+      BackendConnection.getInstance().then((backend) => backend.send_message({ kind: "LeaveRoom", room_code: loaderData.code }))
+    };
   }, []);
 
   if (ready) {
-    const wagerComponents = wagers.map((wager) => (
-      <WagerComponent wager={wager} member_map={makeMemberMap(members)} />
-    ));
+    const memberMap = new Map(members.map((member) => [member.id, member]))
     const memberComponents = members.map((member) => (
       <Member member_state={member} />
     ));
+    const wagerComponents = wagers.map((wager) => (
+      <WagerComponent wager={wager} member_map={memberMap} />
+    ));
+    const potComponents = pots.map((pot) => (<PotComponent pot={pot} member_map={memberMap} />))
 
     return (
       <div>
@@ -149,19 +162,22 @@ export default function Room({ loaderData }: Route.ComponentProps) {
         <br />
         {memberComponents}
         <br />
+        {potComponents}
+        <br />
         <button
           onClick={() =>
-            BackendConnection.getInstance().send_message({
+            BackendConnection.getInstance().then((backend) => backend.send_message({
               kind: "CreateWager",
               room_id: loaderData.code,
               name: "plarka",
               outcomes: [{ description: "tingas", name: "My", odds: 50 }],
-            })
+            }))
           }
         ></button>
       </div>
     );
   } else {
+    console.log("4 plarka")
     return <p>waiting</p>;
   }
 }
