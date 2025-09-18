@@ -12,6 +12,23 @@ export function get_from_genmap<T>(
     return undefined;
   }
 }
+export function extend_genmap<T>(
+  map: GeneratedMap<T>,
+  k: string,
+  v: T
+): GeneratedMap<T> {
+  const entries = Object.entries(map);
+  let entry_idx = entries.findIndex(([key, _]) => {
+    k === key;
+  });
+  if (entry_idx !== -1) {
+    entries[entry_idx] = [k, v];
+  } else {
+    entries.push([k, v]);
+  }
+
+  return Object.fromEntries(entries);
+}
 export type MemberMap = GeneratedMap<MemberState>;
 export type OutcomeMap = GeneratedMap<WagerOutcome>;
 export type ChoicesMap = GeneratedMap<number[]>;

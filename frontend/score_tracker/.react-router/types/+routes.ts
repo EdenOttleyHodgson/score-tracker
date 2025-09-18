@@ -13,15 +13,24 @@ type Pages = {
   "/": {
     params: {};
   };
+  "/room/:roomCode": {
+    params: {
+      "roomCode": string;
+    };
+  };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/";
+    page: "/" | "/room/:roomCode";
   };
   "./routes/main_menu.tsx": {
     id: "routes/main_menu";
     page: "/";
+  };
+  "./routes/room.tsx": {
+    id: "routes/room";
+    page: "/room/:roomCode";
   };
 };
