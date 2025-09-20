@@ -1,30 +1,43 @@
-import { BackendConnection, useBackendHook } from "~/backend";
+import { parseMessage, useBackendSocket } from "~/backend";
 import type { Route } from "./+types/room";
 import { useEffect, useState } from "react";
-import type { MemberState, Pot, ServerMessage, Wager } from "~/backend/types";
+import type {
+  ClientMessage,
+  MemberState,
+  Pot,
+  ServerMessage,
+  Wager,
+} from "~/backend/types";
 import { initMemberState, unreachable } from "~/utils";
-import { useNavigate } from "react-router";
+import { useNavigate, useOutletContext, useSearchParams } from "react-router";
 import { extend_genmap, get_from_genmap } from "~/types";
 import WagerComponent from "~/components/wager";
 import PotComponent from "~/components/pot";
 import Member from "~/components/member";
+import type { LayoutContext } from "./layout";
 export async function clientLoader({ params }: Route.LoaderArgs) {
   return {
-
     code: params.roomCode,
-    name: localStorage.getItem("displayName") || "User",
   };
 }
 type ReactSetter<T> = React.Dispatch<React.SetStateAction<T | undefined>>;
 
 export default function Room({ loaderData }: Route.ComponentProps) {
-  const [admin, setAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [members, setMembers] = useState<MemberState[] | undefined>(undefined);
   const [wagers, setWagers] = useState<Wager[] | undefined>(undefined);
   const [pots, setPots] = useState<Pot[] | undefined>(undefined);
-  const navigator = useNavigate()
+  const { adminPass, displayName } = useOutletContext<LayoutContext>();
+  const [socket, sendMessage] = useBackendSocket(handle_message, () => {
+    navigator("./noServerConnection");
+  });
+
+  const navigator = useNavigate();
+  const [searchParams, _] = useSearchParams();
+
   const ready = members && wagers && pots;
   function handle_message(msg: ServerMessage) {
+    console.log("Handling message");
     switch (msg.kind) {
       case "SynchronizeRoom":
         setMembers(msg.members);
@@ -65,7 +78,7 @@ export default function Room({ loaderData }: Route.ComponentProps) {
 
         break;
       case "AdminGranted":
-        setAdmin(true);
+        setIsAdmin(true);
         break;
       case "WagerCreated":
         setWagers((wagers) => (wagers ? [...wagers, msg.wager] : [msg.wager]));
@@ -125,36 +138,35 @@ export default function Room({ loaderData }: Route.ComponentProps) {
         return unreachable(msg);
     }
   }
-  console.log("1plarka")
-  function onFail() {
-    navigator("/NoServerConnection")
-  }
-  useBackendHook("room", (msg) => handle_message(msg), onFail);
   useEffect(() => {
-    BackendConnection.getInstance().then((backend) => {
-      backend.send_message({
-        kind: "JoinRoom",
+    if (searchParams.get("create")) {
+      sendMessage({
+        kind: "CreateRoom",
+        admin_pass: adminPass.value,
         code: loaderData.code,
-        name: loaderData.name,
       });
-    }).catch((e) => {
-      console.error(e)
-      onFail()
+    }
+    sendMessage({
+      kind: "JoinRoom",
+      code: loaderData.code,
+      name: displayName.value,
     });
     return () => {
-      BackendConnection.getInstance().then((backend) => backend.send_message({ kind: "LeaveRoom", room_code: loaderData.code }))
+      sendMessage({ kind: "LeaveRoom", room_code: loaderData.code });
     };
   }, []);
 
   if (ready) {
-    const memberMap = new Map(members.map((member) => [member.id, member]))
+    const memberMap = new Map(members.map((member) => [member.id, member]));
     const memberComponents = members.map((member) => (
       <Member member_state={member} />
     ));
     const wagerComponents = wagers.map((wager) => (
       <WagerComponent wager={wager} member_map={memberMap} />
     ));
-    const potComponents = pots.map((pot) => (<PotComponent pot={pot} member_map={memberMap} />))
+    const potComponents = pots.map((pot) => (
+      <PotComponent pot={pot} member_map={memberMap} />
+    ));
 
     return (
       <div>
@@ -166,18 +178,17 @@ export default function Room({ loaderData }: Route.ComponentProps) {
         <br />
         <button
           onClick={() =>
-            BackendConnection.getInstance().then((backend) => backend.send_message({
+            sendMessage({
               kind: "CreateWager",
               room_id: loaderData.code,
               name: "plarka",
               outcomes: [{ description: "tingas", name: "My", odds: 50 }],
-            }))
+            })
           }
         ></button>
       </div>
     );
   } else {
-    console.log("4 plarka")
     return <p>waiting</p>;
   }
 }

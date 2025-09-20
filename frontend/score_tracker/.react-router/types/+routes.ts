@@ -18,11 +18,18 @@ type Pages = {
       "roomCode": string;
     };
   };
+  "/noServerConnection": {
+    params: {};
+  };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
+    page: "/" | "/room/:roomCode" | "/noServerConnection";
+  };
+  "./routes/layout.tsx": {
+    id: "routes/layout";
     page: "/" | "/room/:roomCode";
   };
   "./routes/main_menu.tsx": {
@@ -32,5 +39,9 @@ type RouteFiles = {
   "./routes/room.tsx": {
     id: "routes/room";
     page: "/room/:roomCode";
+  };
+  "./routes/no_server_connection.tsx": {
+    id: "routes/no_server_connection";
+    page: "/noServerConnection";
   };
 };
