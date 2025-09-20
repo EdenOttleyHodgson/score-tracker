@@ -75,7 +75,15 @@ impl ServerState {
             .insert(addr, (session_data, RwLock::new(tx)));
     }
     pub fn cleanup_session(&mut self, addr: &SocketAddr) {
-        self.sessions.write().remove(addr);
+        if let Some((sess, _)) = self.sessions.write().remove(addr) {
+            let rooms = self.rooms.read();
+            if let Some(room) = sess.read().current_room().and_then(|room| rooms.get(&room)) {
+                if let Some(id) = room.read().id_lookup(addr) {
+                    log::trace!("Removing user: {id} from room {}", room.read().code());
+                    let _ = room.write().remove_user(id);
+                }
+            }
+        }
     }
 
     fn send_ws_message(&self, addr: &SocketAddr, msg: WSMessage) -> Result<(), MessageSendError> {
