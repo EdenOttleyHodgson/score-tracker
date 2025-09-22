@@ -115,6 +115,10 @@ impl Room {
             .into()
     }
     fn check_admin_pass(&self, pass: &str) -> bool {
+        log::trace!(
+            "Checking admin password: {pass}, {:?}",
+            self.admin_pass_hash
+        );
         self.admin_pass_hash == Self::hash_pass_with_salt(pass, &self.admin_pass_salt)
     }
     pub fn add_admin(&mut self, user: SocketAddr, pass: &str) -> Result<(), AdminRequestError> {
@@ -321,7 +325,6 @@ impl Room {
     }
 }
 
-#[cfg(test)]
 impl Debug for Room {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(

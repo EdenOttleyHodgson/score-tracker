@@ -75,15 +75,22 @@ impl ServerState {
             .insert(addr, (session_data, RwLock::new(tx)));
     }
     pub fn cleanup_session(&mut self, addr: &SocketAddr) {
+        log::trace!("starting cleanup");
+        log::debug!("before {self:?}");
         if let Some((sess, _)) = self.sessions.write().remove(addr) {
             let rooms = self.rooms.read();
             if let Some(room) = sess.read().current_room().and_then(|room| rooms.get(&room)) {
-                if let Some(id) = room.read().id_lookup(addr) {
-                    log::trace!("Removing user: {id} from room {}", room.read().code());
-                    let _ = room.write().remove_user(id);
+                let mut room = room.upgradable_read();
+                if let Some(id) = room.id_lookup(addr) {
+                    log::trace!("Removing user: {id} from room {}", room.code());
+                    let _ = room
+                        .with_upgraded(|room| room.remove_user(id))
+                        .inspect_err(|e| log::error!("{e}"));
                 }
             }
         }
+        log::debug!("after {self:?}");
+        log::trace!("finished cleaning up")
     }
 
     fn send_ws_message(&self, addr: &SocketAddr, msg: WSMessage) -> Result<(), MessageSendError> {
@@ -531,7 +538,6 @@ impl ServerState {
     }
 }
 
-#[cfg(test)]
 impl std::fmt::Debug for ServerState {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
