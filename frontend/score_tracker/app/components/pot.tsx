@@ -3,9 +3,10 @@ import type { MemberState, Pot } from "~/backend/types";
 type PotProps = {
   pot: Pot;
   member_map: Map<number, MemberState>;
+  onJoinClicked: () => void;
 };
 
-export default function Pot({ pot, member_map }: PotProps) {
+export default function Pot({ pot, member_map, onJoinClicked }: PotProps) {
   const participant_items = pot.participants.map((p_id) => {
     const member = member_map.get(p_id);
     if (member) {
@@ -23,6 +24,7 @@ export default function Pot({ pot, member_map }: PotProps) {
       <p>Join Requirement: {pot.score_requirement}</p>
       <p>Participants: </p>
       <ul>{participant_items}</ul>
+      <button onClick={onJoinClicked}>Join</button>
     </div>
   );
 }

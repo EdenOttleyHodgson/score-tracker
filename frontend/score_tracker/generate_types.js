@@ -8,13 +8,11 @@ const dirname = path.join(
   "..",
   "..",
   "..",
-  "..",
   "backend",
   "type_schemas"
 );
 const out_dirname = path.join(
   url.fileURLToPath(import.meta.url),
-  "..",
   "..",
   "app",
   "backend"

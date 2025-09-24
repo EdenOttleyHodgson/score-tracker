@@ -24,7 +24,7 @@ export default function Layout() {
     },
     (e) => {
       console.error(e);
-      navigator("./noServerConnection");
+      navigator("/noServerConnection");
     }
   );
   const context: LayoutContext = {

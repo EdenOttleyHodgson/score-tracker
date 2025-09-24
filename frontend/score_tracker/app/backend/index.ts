@@ -12,11 +12,13 @@ export function parseMessage(msg: string): ServerMessage | null {
   }
 }
 
+export const SOCKET_URL = import.meta.env.VITE_BACKEND_SOCKET_URL;
+
 export function useBackendSocket(
   handler: (arg0: ServerMessage) => void,
   failHandler: (e: any) => void
 ): [any, (arg0: ClientMessage) => void] {
-  const socket = useWebSocket(import.meta.env.VITE_BACKEND_SOCKET_URL, {
+  const socket = useWebSocket(SOCKET_URL, {
     onMessage: (ev) => {
       console.log("Recieved message", ev);
       const parsed = parseMessage(ev.data);

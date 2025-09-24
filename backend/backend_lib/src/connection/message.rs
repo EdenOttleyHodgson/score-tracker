@@ -22,7 +22,8 @@ pub enum Destination {
     Everyone,
 }
 
-//These enums should contain values that update the state of the client accordingly
+//What would normally be unit variants are struct variants to make dealing
+//with the frontend types easier
 #[derive(Serialize, Clone, PartialEq, Eq, Debug, schemars::JsonSchema)]
 #[serde(tag = "kind")]
 pub enum ServerMessage {
@@ -30,7 +31,12 @@ pub enum ServerMessage {
         members: Vec<MemberState>,
         pots: Vec<Pot>,
         wager: Vec<Wager>,
+        requester_id: ID,
     },
+    RoomCreated {
+        code: RoomCode,
+    },
+
     UserJoined {
         name: String,
         id: ID,
@@ -127,12 +133,10 @@ pub enum ClientMessage {
         score_requirement: i64,
         description: String,
     },
-
     JoinPot {
         room_code: RoomCode,
         pot_id: ID,
     },
-
     ResolvePot {
         room_id: RoomCode,
         pot_id: ID,

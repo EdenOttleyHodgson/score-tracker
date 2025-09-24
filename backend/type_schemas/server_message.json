@@ -21,6 +21,11 @@
             "$ref": "#/$defs/Pot"
           }
         },
+        "requester_id": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
+        },
         "wager": {
           "type": "array",
           "items": {
@@ -32,7 +37,24 @@
         "kind",
         "members",
         "pots",
-        "wager"
+        "wager",
+        "requester_id"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/RoomCode"
+        },
+        "kind": {
+          "type": "string",
+          "const": "RoomCreated"
+        }
+      },
+      "required": [
+        "kind",
+        "code"
       ]
     },
     {
@@ -350,6 +372,11 @@
         "description"
       ]
     },
+    "RoomCode": {
+      "type": "string",
+      "max_length": "8",
+      "min_length": "8"
+    },
     "Wager": {
       "type": "object",
       "properties": {
@@ -410,6 +437,11 @@
         "description": {
           "type": "string"
         },
+        "id": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
+        },
         "name": {
           "type": "string"
         },
@@ -421,6 +453,7 @@
       },
       "required": [
         "name",
+        "id",
         "description",
         "odds"
       ]

@@ -6,6 +6,11 @@
     "description": {
       "type": "string"
     },
+    "id": {
+      "type": "integer",
+      "format": "uint",
+      "minimum": 0
+    },
     "name": {
       "type": "string"
     },
@@ -17,6 +22,7 @@
   },
   "required": [
     "name",
+    "id",
     "description",
     "odds"
   ]

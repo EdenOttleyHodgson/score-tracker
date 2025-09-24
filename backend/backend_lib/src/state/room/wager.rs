@@ -21,7 +21,10 @@ impl Wager {
         Self {
             id,
             name,
-            outcomes: zip(0 as usize.., outcomes).collect(),
+            outcomes: outcomes
+                .into_iter()
+                .map(|outcome| (outcome.id, outcome))
+                .collect(),
             participant_bets: HashMap::new(),
             participant_choices: HashMap::new(),
         }
@@ -114,16 +117,18 @@ pub struct WagerResult {
 #[derive(Deserialize, Serialize, Clone, PartialEq, Eq, Debug, schemars::JsonSchema)]
 pub struct WagerOutcome {
     name: String,
+    id: ID,
     description: String,
     odds: usize,
 }
 
 #[cfg(test)]
 impl WagerOutcome {
-    pub fn new(name: String, description: String, odds: usize) -> Self {
+    pub fn new(name: String, description: String, odds: usize, id: ID) -> Self {
         Self {
             name,
             description,
+            id,
             odds,
         }
     }

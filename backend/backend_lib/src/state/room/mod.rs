@@ -255,6 +255,13 @@ impl Room {
         outcome_id: ID,
         amount: i64,
     ) -> Result<i64, StateMutationError> {
+        let user = self
+            .members
+            .get_mut(&user_id)
+            .ok_or(RoomMutationError::UserNotInRoom(user_id, self.room_code))?;
+        if (user.score() - amount < 0) {
+            return Err(RoomMutationError::NegativeScore.into());
+        }
         self.wagers
             .get_mut(&wager_id)
             .ok_or(RoomMutationError::NonexistentWager {
@@ -262,11 +269,8 @@ impl Room {
                 room_code: self.room_code,
             })?
             .join(user_id, outcome_id, amount)?;
-        let user = self
-            .members
-            .get_mut(&user_id)
-            .ok_or(RoomMutationError::UserNotInRoom(user_id, self.room_code))?;
-        user.set_score(user.score() - amount)?;
+        user.set_score(user.score() - amount)
+            .expect("Already asserted earlier in function");
         user.current_wagers_mut().insert(wager_id);
         Ok(user.score())
     }

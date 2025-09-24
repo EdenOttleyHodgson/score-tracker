@@ -15,4 +15,15 @@ export function initMemberState(id: number, name: string): MemberState {
   };
 }
 
-
+export function promptAmount(): number | null {
+  const amount = prompt("Enter amount");
+  try {
+    if (amount) {
+      return parseInt(amount);
+    } else {
+      return null;
+    }
+  } catch {
+    return null;
+  }
+}

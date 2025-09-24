@@ -75,8 +75,7 @@ impl ServerState {
             .insert(addr, (session_data, RwLock::new(tx)));
     }
     pub fn cleanup_session(&mut self, addr: &SocketAddr) {
-        log::trace!("starting cleanup");
-        log::debug!("before {self:?}");
+        log::trace!("starting cleanup for addr:{addr}");
         if let Some((sess, _)) = self.sessions.write().remove(addr) {
             let rooms = self.rooms.read();
             if let Some(room) = sess.read().current_room().and_then(|room| rooms.get(&room)) {
@@ -89,8 +88,7 @@ impl ServerState {
                 }
             }
         }
-        log::debug!("after {self:?}");
-        log::trace!("finished cleaning up")
+        log::trace!("finished cleaning up for addr:{addr}")
     }
 
     fn send_ws_message(&self, addr: &SocketAddr, msg: WSMessage) -> Result<(), MessageSendError> {
@@ -204,6 +202,7 @@ impl ServerState {
                             members,
                             pots,
                             wager,
+                            requester_id: id,
                         },
                         Destination::Myself,
                     ),

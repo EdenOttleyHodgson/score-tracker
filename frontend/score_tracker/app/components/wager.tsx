@@ -4,9 +4,14 @@ import { get_from_genmap, type GeneratedMap, type MemberMap } from "~/types";
 interface WagerProps {
   wager: Wager;
   member_map: Map<number, MemberState>;
+  onOutcomeClicked: (id: number) => void;
 }
 
-export default function Wager({ wager, member_map }: WagerProps) {
+export default function Wager({
+  wager,
+  member_map,
+  onOutcomeClicked,
+}: WagerProps) {
   let wager_members = Object.entries(wager.participant_choices).flatMap(
     ([choice_id, user_set]) =>
       user_set.map((user) =>
@@ -27,13 +32,13 @@ export default function Wager({ wager, member_map }: WagerProps) {
   let wager_outcome_items = Object.entries(wager.outcomes).map(
     ([id, outcome]) => (
       <li key={id}>
-        <WagerOutcome {...outcome} />
+        <WagerOutcome outcome={outcome} onOutcomeClicked={onOutcomeClicked} />
       </li>
     )
   );
   return (
     <div>
-      <h2>{wager.name}</h2>
+      <h2>Name: {wager.name}</h2>
       <ul>{wager_outcome_items}</ul>
       <ul>{wager_member_items}</ul>
     </div>
@@ -64,6 +69,14 @@ function make_wager_member(
   outcomes: GeneratedMap<WagerOutcome>,
   amounts: GeneratedMap<number>
 ): WagerMemberProps {
+  console.log(
+    "making wager member",
+    p_id,
+    choice_id,
+    member_map,
+    outcomes,
+    amounts
+  );
   const choice_name = get_from_genmap(outcomes, choice_id)?.name;
   if (!choice_name)
     throw new Error(`Choice with id ${choice_id} not found in outcome map`);
@@ -77,12 +90,25 @@ function make_wager_member(
   return { id: p_id, username, choice_name, amount_wagered };
 }
 
-function WagerOutcome(outcome: WagerOutcome) {
+function WagerOutcome({
+  outcome,
+  onOutcomeClicked,
+}: {
+  outcome: WagerOutcome;
+  onOutcomeClicked: (id: number) => void;
+}) {
   return (
-    <div>
+    <div className={"flex gap-5"}>
       <h3>{outcome.name}</h3>
       <p>{outcome.description}</p>
       <p>Odds:{outcome.odds}</p>
+      <button
+        onClick={() => {
+          onOutcomeClicked(outcome.id);
+        }}
+      >
+        Join
+      </button>
     </div>
   );
 }

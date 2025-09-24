@@ -105,6 +105,7 @@ export type RoomCode = string;
 
 export interface WagerOutcome {
   description: string;
+  id: number;
   name: string;
   odds: number;
   [k: string]: unknown;
@@ -133,7 +134,13 @@ export type ServerMessage =
       kind: "SynchronizeRoom";
       members: MemberState[];
       pots: Pot[];
+      requester_id: number;
       wager: Wager[];
+      [k: string]: unknown;
+    }
+  | {
+      code: RoomCode;
+      kind: "RoomCreated";
       [k: string]: unknown;
     }
   | {

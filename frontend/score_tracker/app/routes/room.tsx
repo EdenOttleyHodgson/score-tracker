@@ -8,9 +8,8 @@ import type {
   ServerMessage,
   Wager,
 } from "~/backend/types";
-import { initMemberState, unreachable } from "~/utils";
+import { initMemberState, promptAmount, unreachable } from "~/utils";
 import { useNavigate, useOutletContext, useSearchParams } from "react-router";
-import { extend_genmap, get_from_genmap } from "~/types";
 import WagerComponent from "~/components/wager";
 import PotComponent from "~/components/pot";
 import Member from "~/components/member";
@@ -27,23 +26,29 @@ export default function Room({ loaderData }: Route.ComponentProps) {
   const [members, setMembers] = useState<MemberState[] | undefined>(undefined);
   const [wagers, setWagers] = useState<Wager[] | undefined>(undefined);
   const [pots, setPots] = useState<Pot[] | undefined>(undefined);
-  const { adminPass, displayName } = useOutletContext<LayoutContext>();
+  const [adminPass, setAdminPass] = useState("");
+  const [selfID, setSelfID] = useState<number | undefined>(undefined);
+  const { adminPass: newAdminPass } = useOutletContext<LayoutContext>();
   const [socket, sendMessage] = useBackendSocket(handle_message, () => {
-    navigator("./noServerConnection");
+    navigator("/noServerConnection");
   });
 
   const navigator = useNavigate();
   const [searchParams, _] = useSearchParams();
+  const displayName = searchParams.get("name") || "User";
 
-  const ready = members && wagers && pots;
+  const ready = members && wagers && pots && selfID !== undefined;
   function handle_message(msg: ServerMessage) {
     console.log("Handling message");
     switch (msg.kind) {
+      case "RoomCreated":
+        break;
+
       case "SynchronizeRoom":
         setMembers(msg.members);
         setWagers(msg.wager);
         setPots(msg.pots);
-
+        setSelfID(msg.requester_id);
         break;
       case "UserJoined":
         setMembers((members) =>
@@ -142,14 +147,14 @@ export default function Room({ loaderData }: Route.ComponentProps) {
     if (searchParams.get("create")) {
       sendMessage({
         kind: "CreateRoom",
-        admin_pass: adminPass.value,
+        admin_pass: newAdminPass.value,
         code: loaderData.code,
       });
     }
     sendMessage({
       kind: "JoinRoom",
       code: loaderData.code,
-      name: displayName.value,
+      name: displayName,
     });
     return () => {
       sendMessage({ kind: "LeaveRoom", room_code: loaderData.code });
@@ -162,10 +167,35 @@ export default function Room({ loaderData }: Route.ComponentProps) {
       <Member member_state={member} />
     ));
     const wagerComponents = wagers.map((wager) => (
-      <WagerComponent wager={wager} member_map={memberMap} />
+      <WagerComponent
+        wager={wager}
+        member_map={memberMap}
+        onOutcomeClicked={(outcome_id) => {
+          const amount = promptAmount();
+          if (amount) {
+            sendMessage({
+              kind: "JoinWager",
+              amount,
+              wager_id: wager.id,
+              outcome_id,
+              room_id: loaderData.code,
+            });
+          }
+        }}
+      />
     ));
     const potComponents = pots.map((pot) => (
-      <PotComponent pot={pot} member_map={memberMap} />
+      <PotComponent
+        pot={pot}
+        member_map={memberMap}
+        onJoinClicked={() => {
+          sendMessage({
+            kind: "JoinPot",
+            pot_id: pot.pot_id,
+            room_code: loaderData.code,
+          });
+        }}
+      />
     ));
 
     return (
@@ -177,15 +207,42 @@ export default function Room({ loaderData }: Route.ComponentProps) {
         {potComponents}
         <br />
         <button
-          onClick={() =>
+          onClick={() => {
             sendMessage({
               kind: "CreateWager",
               room_id: loaderData.code,
               name: "plarka",
-              outcomes: [{ description: "tingas", name: "My", odds: 50 }],
-            })
-          }
-        ></button>
+              outcomes: [
+                { id: 0, description: "tingas", name: "My", odds: 50 },
+              ],
+            });
+            sendMessage({
+              kind: "CreatePot",
+              description: "my slorkatingas",
+              room_code: loaderData.code,
+              score_requirement: 100,
+            });
+            sendMessage({ kind: "BlessScore", amount: 1000, to: selfID });
+          }}
+        >
+          my grarkatingas
+        </button>
+        <input
+          onChange={(ev) => {
+            setAdminPass(ev.target.value);
+          }}
+        />
+        <button
+          onClick={() => {
+            sendMessage({
+              kind: "RequestAdmin",
+              room: loaderData.code,
+              password: adminPass,
+            });
+          }}
+        >
+          admin request
+        </button>
       </div>
     );
   } else {
@@ -197,28 +254,30 @@ function update_wager(
   wager: Wager,
   msg: { wager_id: number; outcome_id: number; user_id: number; amount: number }
 ): Wager {
+  console.log("updating wager:", wager);
   if (wager.id === msg.wager_id) {
-    const relevantChoices = get_from_genmap(
-      wager.participant_choices,
-      msg.outcome_id.toString()
-    );
-    if (relevantChoices) {
-      const participant_choices = extend_genmap(
-        wager.participant_choices,
-        msg.outcome_id.toString(),
-        [...relevantChoices, msg.user_id]
-      );
-      const participant_bets = extend_genmap(
-        wager.participant_bets,
-        msg.user_id.toString(),
-        msg.amount
-      );
-      return { ...wager, participant_choices, participant_bets };
+    const outcome = wager.outcomes[msg.outcome_id.toString()];
+    if (outcome) {
+      const newBets = { ...wager.participant_bets };
+      newBets[msg.user_id] = msg.amount;
+      const newChoices = { ...wager.participant_choices };
+      const relevantChoosers = newChoices[msg.outcome_id.toString()];
+      if (relevantChoosers) {
+        newChoices[msg.outcome_id.toString()] = [
+          ...relevantChoosers,
+          msg.user_id,
+        ];
+      } else {
+        newChoices[msg.outcome_id.toString()] = [msg.user_id];
+      }
+      return {
+        ...wager,
+        participant_choices: newChoices,
+        participant_bets: newBets,
+      };
     } else {
-      console.error("Choice not present in wager");
-      return wager;
+      console.error("Outcome doesnt exist in wager");
     }
-  } else {
-    return wager;
   }
+  return wager;
 }

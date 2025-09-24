@@ -9,16 +9,14 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export default function MainMenu() {
-  const { adminPass, displayName } = useOutletContext<LayoutContext>();
+  const { adminPass } = useOutletContext<LayoutContext>();
   const [roomCode, setRoomCode] = useState("");
+  const [displayName, setDisplayName] = useState("");
   return (
     <div>
       <label>
         Display Name:
-        <input
-          name="name"
-          onChange={(e) => displayName.setter(e.target.value)}
-        />
+        <input name="name" onChange={(e) => setDisplayName(e.target.value)} />
       </label>
       <label>
         Room Code:
@@ -36,8 +34,10 @@ export default function MainMenu() {
           onChange={(e) => adminPass.setter(e.target.value)}
         />
       </label>
-      <NavLink to={`room/${roomCode}`}>Join</NavLink>
-      <NavLink to={`room/${roomCode}?create=true`}>Create</NavLink>
+      <NavLink to={`room/${roomCode}?name=${displayName}`}>Join</NavLink>
+      <NavLink to={`room/${roomCode}?create=true&name=${displayName}`}>
+        Create
+      </NavLink>
     </div>
   );
 }
