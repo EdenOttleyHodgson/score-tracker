@@ -376,6 +376,18 @@
         "wager_id",
         "outcome_id"
       ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "Debug"
+        }
+      },
+      "required": [
+        "kind"
+      ]
     }
   ],
   "$defs": {

@@ -9,7 +9,12 @@ import type {
   Wager,
 } from "~/backend/types";
 import { initMemberState, promptAmount, unreachable } from "~/utils";
-import { useNavigate, useOutletContext, useSearchParams } from "react-router";
+import {
+  NavLink,
+  useNavigate,
+  useOutletContext,
+  useSearchParams,
+} from "react-router";
 import WagerComponent from "~/components/wager";
 import PotComponent from "~/components/pot";
 import Member from "~/components/member";
@@ -29,25 +34,29 @@ export default function Room({ loaderData }: Route.ComponentProps) {
   const [pots, setPots] = useState<Pot[] | undefined>(undefined);
   const [adminPass, setAdminPass] = useState("");
   const [selfID, setSelfID] = useState<number | undefined>(undefined);
+  const [removed, setRemoved] = useState(false);
   const { adminPass: newAdminPass } = useOutletContext<LayoutContext>();
-  const handleMessageCallback = useCallback((msg: ServerMessage) => {
-    handleMessage(
-      msg,
-      members,
-      wagers,
-      pots,
-      setMembers,
-      setWagers,
-      setPots,
-      setSelfID,
-      setIsAdmin
-    );
-  }, []);
-  const [socket, sendMessage] = useBackendSocket(handleMessageCallback, () => {
-    navigator("/noServerConnection");
-  });
 
-  const navigator = useNavigate();
+  const [socket, sendMessage] = useBackendSocket(
+    (msg) =>
+      handleMessage(
+        msg,
+        members,
+        wagers,
+        pots,
+        setMembers,
+        setWagers,
+        setPots,
+        setSelfID,
+        setIsAdmin,
+        setRemoved
+      ),
+    () => {
+      navigate("/noServerConnection");
+    }
+  );
+
+  const navigate = useNavigate();
   const [searchParams, _] = useSearchParams();
   const displayName = searchParams.get("name") || "User";
 
@@ -68,6 +77,7 @@ export default function Room({ loaderData }: Route.ComponentProps) {
     });
     return () => {
       sendMessage({ kind: "LeaveRoom", room_code: loaderData.code });
+      setRemoved(false);
     };
   }, []);
 
@@ -178,10 +188,21 @@ export default function Room({ loaderData }: Route.ComponentProps) {
         >
           admin request
         </button>
+        <button onClick={() => sendMessage({ kind: "Debug" })}>Debug</button>
+        {removed && (
+          <NavLink to="/">
+            You have been removed from the room.Click to navigate back to the
+            main menu.
+          </NavLink>
+        )}
       </div>
     );
   } else {
-    return <p>waiting</p>;
+    return (
+      <div>
+        <p>waiting</p>
+      </div>
+    );
   }
 }
 
@@ -226,9 +247,14 @@ function handleMessage(
   setWagers: ReactSetter<Wager[]>,
   setPots: ReactSetter<Pot[]>,
   setSelfID: ReactSetter<number>,
-  setIsAdmin: ReactSetterDefined<boolean>
+  setIsAdmin: ReactSetterDefined<boolean>,
+  setRemoved: ReactSetterDefined<boolean>
 ) {
   console.log("Handling message");
+  //ugly hack, but if you're recieving a non-error message you're still in the room.
+  if (msg.kind !== "Error") {
+    setRemoved(false);
+  }
   switch (msg.kind) {
     case "RoomCreated":
       break;
@@ -253,9 +279,9 @@ function handleMessage(
       break;
     case "RoomDeleted":
       alert("Room has been deleted by an admin.");
-      useNavigate()("/");
       break;
     case "ScoreChanged":
+      console.log(members);
       if (members) {
         setMembers(
           members.map((member) => {
@@ -321,6 +347,10 @@ function handleMessage(
       }
 
       break;
+    case "RecieverLeft":
+      console.log("reciever left");
+      setRemoved(true);
+      break;
     case "Error":
       if (msg.display_to_user) {
         alert(msg.description);
@@ -328,6 +358,7 @@ function handleMessage(
         console.error(msg.description);
       }
       break;
+
     default:
       return unreachable(msg);
   }

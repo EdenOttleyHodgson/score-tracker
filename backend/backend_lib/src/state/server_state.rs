@@ -218,25 +218,32 @@ impl ServerState {
                     .id_lookup(&sender)
                     .ok_or(RoomMutationError::AddressNotInRoom(sender, room_code))?;
                 room.remove_user(id)?;
-                Ok(vec![(
-                    ServerMessage::UserRemoved { id },
-                    Destination::PeersExclusive,
-                )])
+                Ok(vec![
+                    (
+                        ServerMessage::UserRemoved { id },
+                        Destination::PeersExclusive,
+                    ),
+                    (ServerMessage::RecieverLeft, Destination::Myself),
+                ])
             }
             ClientMessage::RemoveFromRoom {
                 code: room_code,
                 id: removed_id,
             } => {
-                self.rooms
+                let addr = self
+                    .rooms
                     .read()
                     .get(&room_code)
                     .ok_or(MessageHandleError::NonexistentRoom(room_code))?
                     .write()
                     .remove_user(removed_id)?;
-                Ok(vec![(
-                    ServerMessage::UserRemoved { id: removed_id },
-                    Destination::PeersInclusive,
-                )])
+                Ok(vec![
+                    (
+                        ServerMessage::UserRemoved { id: removed_id },
+                        Destination::PeersInclusive,
+                    ),
+                    (ServerMessage::RecieverLeft, Destination::Specific(addr)),
+                ])
             }
             ClientMessage::DeleteRoom { room_code } => {
                 self.delete_room(room_code)?;
@@ -499,6 +506,10 @@ impl ServerState {
                     Destination::PeersInclusive,
                 ));
                 Ok(msgs)
+            }
+            ClientMessage::Debug => {
+                log::debug!("{self:?}");
+                Ok(Vec::new())
             }
         }
     }

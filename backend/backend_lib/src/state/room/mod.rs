@@ -76,7 +76,7 @@ impl Room {
             Ok(id)
         }
     }
-    pub fn remove_user(&mut self, user: ID) -> Result<(), RoomMutationError> {
+    pub fn remove_user(&mut self, user: ID) -> Result<SocketAddr, RoomMutationError> {
         if let Some(mut user_state) = self.members.remove(&user) {
             for wager_id in user_state.current_wagers_mut().iter() {
                 if let Some(wager) = self.wagers.get_mut(wager_id) {
@@ -95,9 +95,10 @@ impl Room {
                 .map(|(addr, _)| *addr)
             {
                 self.address_map.remove(&addr);
+                Ok(addr)
+            } else {
+                Err(RoomMutationError::UserNotInRoom(user, self.room_code))
             }
-
-            Ok(())
         } else {
             Err(RoomMutationError::UserNotInRoom(user, self.room_code))
         }

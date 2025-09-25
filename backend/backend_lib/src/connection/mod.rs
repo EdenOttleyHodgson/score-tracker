@@ -152,7 +152,7 @@ impl Connection {
         msg: ServerMessage,
         dest: Destination,
     ) -> Result<(), Vec<MessageSendError>> {
-        log::trace!("Trying to send message!");
+        log::trace!("Trying to send message: {msg:?}");
         match dest {
             message::Destination::Myself => server_state
                 .read()

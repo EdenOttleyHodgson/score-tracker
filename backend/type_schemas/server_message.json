@@ -274,6 +274,18 @@
     {
       "type": "object",
       "properties": {
+        "kind": {
+          "type": "string",
+          "const": "RecieverLeft"
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
         "description": {
           "type": "string"
         },

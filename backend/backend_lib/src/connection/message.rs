@@ -72,6 +72,7 @@ pub enum ServerMessage {
         new_amount: i64,
     },
     AdminGranted,
+    RecieverLeft,
 
     Error {
         description: String,
@@ -158,6 +159,7 @@ pub enum ClientMessage {
         wager_id: ID,
         outcome_id: ID,
     },
+    Debug,
 }
 
 impl ClientMessage {
@@ -213,6 +215,7 @@ impl ClientMessage {
                 wager_id: _,
                 outcome_id: _,
             } => Some(Some(*room_id)),
+            ClientMessage::Debug => None,
         }
     }
 }
