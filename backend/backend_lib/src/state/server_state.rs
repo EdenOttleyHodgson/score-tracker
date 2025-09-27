@@ -247,10 +247,7 @@ impl ServerState {
             }
             ClientMessage::DeleteRoom { room_code } => {
                 self.delete_room(room_code)?;
-                Ok(vec![(
-                    ServerMessage::RoomDeleted,
-                    Destination::PeersInclusive,
-                )])
+                Ok(vec![(ServerMessage::RoomDeleted, Destination::Everyone)])
             }
             ClientMessage::RequestAdmin { room, password } => {
                 let rooms = self.rooms.read();

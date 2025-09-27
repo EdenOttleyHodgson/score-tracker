@@ -188,6 +188,15 @@ export default function Room({ loaderData }: Route.ComponentProps) {
         >
           admin request
         </button>
+        {isAdmin && (
+          <button
+            onClick={() =>
+              sendMessage({ kind: "DeleteRoom", room_code: loaderData.code })
+            }
+          >
+            Delete Room
+          </button>
+        )}
         <button onClick={() => sendMessage({ kind: "Debug" })}>Debug</button>
         {removed && (
           <NavLink to="/">
@@ -279,6 +288,7 @@ function handleMessage(
       break;
     case "RoomDeleted":
       alert("Room has been deleted by an admin.");
+      setRemoved(true);
       break;
     case "ScoreChanged":
       console.log(members);
