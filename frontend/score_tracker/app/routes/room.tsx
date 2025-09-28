@@ -19,6 +19,8 @@ import WagerComponent from "~/components/wager";
 import PotComponent from "~/components/pot";
 import Member from "~/components/member";
 import type { LayoutContext } from "./layout";
+import MakeWager from "~/components/makeWager";
+import MakePot from "~/components/makePot";
 export async function clientLoader({ params }: Route.LoaderArgs) {
   return {
     code: params.roomCode,
@@ -198,6 +200,24 @@ export default function Room({ loaderData }: Route.ComponentProps) {
           </button>
         )}
         <button onClick={() => sendMessage({ kind: "Debug" })}>Debug</button>
+        {isAdmin && <MakeWager
+          onConfirm={(name, outcomes) => sendMessage(
+            {
+              kind: "CreateWager",
+              name,
+              outcomes,
+              room_id: loaderData.code
+            })} />}
+        {isAdmin && <MakePot
+          onConfirm={
+            (name, description, score_requirement) =>
+              sendMessage({
+                kind: "CreatePot",
+                name,
+                description,
+                score_requirement,
+                room_code: loaderData.code
+              })} />}
         {removed && (
           <NavLink to="/">
             You have been removed from the room.Click to navigate back to the
